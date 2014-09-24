@@ -16,14 +16,16 @@ cell_3d_area_thresh= 30000;
 %  cell_3d_area_thresh= 3000;
 nuc_3d_area_thresh=7000;
 %  nuc_3d_area_thresh=700;
-root_root='W:\Data\Paxillin timelapse\SD_20140902_pax_timelapse\';
-%root_root='/mnt/mbi/images/aneesh/Data/Paxillin timelapse/SD_20140902_pax_timelapse/';
+%root_root='W:\Data\Paxillin timelapse\SD_20140902_pax_timelapse\';
+% >>>>>>>CHANGE FILE PATH BELOW!<<<<<<<<
+root_root='/mnt/mbi/images/aneesh/Data/Paxillin timelapse/SD_20140902_pax_timelapse/';
 fold_list=dir(root_root);
 for fold_count=3:size(fold_list,1)
    
     root=fullfile(root_root,fold_list(fold_count).name,filesep); %change path as required
     img_write_path=fullfile(root, ['results_', date],filesep);
     mkdir(img_write_path);
+    %>>>>>> CHANGE EXTENSION TO .nd2 BELOW<<<<<<<<<<
     file_list=dir(fullfile(root, '*.mvd2'));
     file_path=[root, file_list.name];
     %% initialize file reader and get number of series
