@@ -30,11 +30,11 @@ for fold_count=3:size(fold_list,1)
     reader = bfGetReader(file_path);
     series_num=reader.getSeriesCount;
     %% initialize storage cell
-    [xls_label{1,1:15}]=deal(...
-        'Series','Cell','Time', ... %1-3
-        'Nuc Intensity', 'Cell Intensity','Ratio', 'Nuc Area','Cell Area',...%4-8
-        'Nuc Label Int ',' ','Avg Nuc Int', 'Avg Cell Int',...%9-12
-        'Avg Int Ratio','Cell thresh val','Nuc thresh val'...%13-15
+    [xls_label{1,1:14}]=deal(...
+        'Cell','Time', ... %1-2
+        'Nuc Intensity', 'Cell Intensity','Ratio', 'Nuc Area','Cell Area',...%3-7
+        'Nuc Label Int ',' ','Avg Nuc Int', 'Avg Cell Int',...%8-11
+        'Avg Int Ratio','Cell thresh val','Nuc thresh val'...%12-14
         );
     %%
     for series_count=1:series_num
@@ -185,18 +185,13 @@ for fold_count=3:size(fold_list,1)
                         %%
                         
                         %% gather data
-                        [pro_xls_label{1,1:15,obj_count}]=deal(...
-                            ['Series_',num2str(series_count)],['Cell', num2str(obj_count)],t_count, ... %1-3
+                        [pro_xls_label{1,1:14,obj_count}]=deal(...
+                            [['Series_',num2str(series_count)],['Cell', num2str(obj_count)]],t_count, ... %1-3
                             nuc_int, cell_int, nuc_int/cell_int, nuc_area,cell_area,...%4-8
                             ' ',' ',nuc_int/nuc_area, cell_int/cell_area,...%9-12
                             (nuc_int/nuc_area)/(cell_int/cell_area),cell_thresh_fac,nuc_thresh_fac...%13-15
                             );
-                        %                         pro_xls_label{t_count,1:15,obj_count}=[...
-                        %                             ['Series_',num2str(series_count)],['Cell', num2str(obj_count)],t_count, ... %1-3
-                        %                             nuc_int, cell_int, nuc_int/cell_int, nuc_area,cell_area,...%4-8
-                        %                             ' ',' ',nuc_int/nuc_area, cell_int/cell_area,...%9-12
-                        %                             (nuc_int/nuc_area)/(cell_int/cell_area),cell_thresh_fac,nuc_thresh_fac...%13-15
-                        %                             ];
+                        
                         
                         %% make image to write
                         
