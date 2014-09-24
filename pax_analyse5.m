@@ -227,7 +227,7 @@ for fold_count=3:size(fold_list,1)
                     %% clear var
                     clear rat_member crop_smo_cell crop_cell crop_nuc crop_orig_cell crop_phos crop_orig_phos
                 end % for object
-                xls_label=vertcat(xls_label,reshape(permute(pro_xls_label, [1 3 2]),[],15));
+                xls_label=vertcat(xls_label,reshape(permute(pro_xls_label, [1 3 2]),[],14));
                 clear data 
                 clear cell_stack phos_stack orig_phos_stack nuc_stack orig_cell_stack cell_stack nuc_stack smooth_cell smooth_nuc
                 clear sum_cell sum_smooth_cell re_smooth_cell nuc_bw orig_nuc_stack pix_list
