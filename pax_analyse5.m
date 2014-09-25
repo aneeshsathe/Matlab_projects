@@ -16,9 +16,9 @@ cell_3d_area_thresh= 30000;
 %  cell_3d_area_thresh= 3000;
 nuc_3d_area_thresh=7000;
 %  nuc_3d_area_thresh=700;
-%root_root='W:\Data\Paxillin timelapse\SD_20140902_pax_timelapse\';
+%root_root='C:\Users\Aneesh\Documents\Data\spinning disk\';
 % >>>>>>>CHANGE FILE PATH BELOW!<<<<<<<<
-root_root='/mnt/mbi/images/aneesh/Data/Paxillin timelapse/SD_20140902_pax_timelapse/';
+ root_root='/mnt/mbi/images/aneesh/Data/Paxillin timelapse/SD_20140902_pax_timelapse/';
 fold_list=dir(root_root);
 for fold_count=3:size(fold_list,1)
    
@@ -101,7 +101,8 @@ for fold_count=3:size(fold_list,1)
                     
                                        bb=bw_re_prop(obj_idx(obj_count)).BoundingBox;
                     pix_list=bw_re_prop(obj_idx(obj_count)).PixelIdxList;
-                    [tmp, cmc, cc, cn, cp, coc, noc, cop]=deal(zeros(size(cell_stack,1),size(cell_stack,2)));
+                    [tmp, cmc, cc, cn, cp, cop]=deal(zeros(size(cell_stack,1),size(cell_stack,2)));
+                    [coc, noc]=deal(zeros(size(cell_stack,1),size(cell_stack,2),'uint16'));
                     
                     %crop images
                     for count=1:size(smooth_cell,3)
@@ -210,20 +211,26 @@ for fold_count=3:size(fold_list,1)
                             %reshape(phos_stack(cell_pix_list),[],size(cell_bw,2)*size(cell_bw,3));
                             ];
                         max_img=max(orig_cell_stack,[],3);
+                        sum_img=sum(orig_cell_stack,3);
                         %         imtool(out_img,[])
                         %% write image
                         if t_count==1
                             imwrite(out_img,[img_write_path, 'Series',num2str(series_count), '_cell_', num2str(obj_count), '.tiff'],...
                                 'tiff');%,'Compression', 'jpeg', 'RowsPerStrip', 16);
-                            if T_num>1
-                                imwrite(max_img,[img_write_path, 'Max_Proj_Series',num2str(series_count), '_cell_', num2str(obj_count), '.tiff'],...
+                            
+                            imwrite(max_img,[img_write_path, 'Max_Proj_Series',num2str(series_count), '_cell_', num2str(obj_count), '.tiff'],...
                                 'tiff');
-                            end
+                            imwrite(sum_img,[img_write_path, 'Sum_Proj_Series',num2str(series_count), '_cell_', num2str(obj_count), '.tiff'],...
+                                'tiff');
+                            
                         elseif t_count>1
                             imwrite(out_img,[img_write_path, 'Series',num2str(series_count), '_cell_', num2str(obj_count), '.tiff'],...
                                 'tiff','WriteMode','append');%, 'Compression', 'jpeg', 'RowsPerStrip', 16);
                             
                             imwrite(max_img,[img_write_path, 'Max_Proj_Series',num2str(series_count), '_cell_', num2str(obj_count), '.tiff'],...
+                                'tiff','WriteMode','append');
+                            
+                            imwrite(sum_img,[img_write_path, 'Sum_Proj_Series',num2str(series_count), '_cell_', num2str(obj_count), '.tiff'],...
                                 'tiff','WriteMode','append');
                         
                         end
@@ -231,7 +238,7 @@ for fold_count=3:size(fold_list,1)
                         disp(['Series ' num2str(series_count) ' of ' num2str(series_num) ' time ' num2str(t_count) ' of ' num2str(T_num)])
                     end % for 3d area thresh
                     %% clear var
-                    clear rat_member crop_smo_cell crop_cell crop_nuc crop_orig_cell crop_phos crop_orig_phos
+                    clear rat_member crop_smo_cell crop_cell crop_nuc crop_orig_cell crop_orig_nuc crop_phos crop_orig_phos
                 end % for object
                 xls_label=vertcat(xls_label,reshape(permute(pro_xls_label, [1 3 2]),[],14));
                 clear data 
