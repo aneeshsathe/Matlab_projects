@@ -35,7 +35,7 @@ for fold_count=3:size(fold_list,1)
     [xls_label{1,1:14}]=deal(...
         'Cell','Time', ... %1-2
         'Nuc Intensity', 'Cell Intensity','Ratio', 'Nuc Area','Cell Area',...%3-7
-        'Nuc Label Int ',' ','Avg Nuc Int', 'Avg Cell Int',...%8-11
+        'Nuc Label Int ','nuc_coloc_ratio','Avg Nuc Int', 'Avg Cell Int',...%8-11
         'Avg Int Ratio','Cell thresh val','Nuc thresh val'...%12-14
         );
     %%
@@ -101,7 +101,7 @@ for fold_count=3:size(fold_list,1)
                     
                                        bb=bw_re_prop(obj_idx(obj_count)).BoundingBox;
                     pix_list=bw_re_prop(obj_idx(obj_count)).PixelIdxList;
-                    [tmp, cmc, cc, cn, cp, coc, cop]=deal(zeros(size(cell_stack,1),size(cell_stack,2)));
+                    [tmp, cmc, cc, cn, cp, coc, noc, cop]=deal(zeros(size(cell_stack,1),size(cell_stack,2)));
                     
                     %crop images
                     for count=1:size(smooth_cell,3)
@@ -128,6 +128,11 @@ for fold_count=3:size(fold_list,1)
                         %                         coc=tmp;
                         coc(pix_list)=tmp(pix_list);
                         crop_orig_cell(:,:,count)=imcrop(coc,bb);
+                        
+                        tmp=orig_nuc_stack(:,:,count);
+                        %                         coc=tmp;
+                        noc(pix_list)=tmp(pix_list);
+                        crop_orig_nuc(:,:,count)=imcrop(noc,bb);
                         
                         %             tmp=orig_phos_stack(:,:,count);
                         %             cop(pix_list)=tmp(pix_list);
@@ -181,6 +186,7 @@ for fold_count=3:size(fold_list,1)
                         
                         cell_int=sum(crop_orig_cell(cell_pix_list));
                         nuc_int=sum(crop_orig_cell(nuc_pix_list));
+                        nuc_nuc_int=sum(crop_orig_nuc(nuc_pix_list));
                         %             phos_cell_int=sum(crop_orig_phos(cell_pix_list));
                         %             phos_nuc_int=sum(crop_orig_phos(nuc_pix_list));
                         
@@ -190,7 +196,7 @@ for fold_count=3:size(fold_list,1)
                         [pro_xls_label{1,1:14,obj_count}]=deal(...
                             [['Series_',num2str(series_count)],['Cell', num2str(obj_count)]],t_count, ... %1-3
                             nuc_int, cell_int, nuc_int/cell_int, nuc_area,cell_area,...%4-8
-                            ' ',' ',nuc_int/nuc_area, cell_int/cell_area,...%9-12
+                            nuc_nuc_int,nuc_int/nuc_nuc_int,nuc_int/nuc_area, cell_int/cell_area,...%9-12
                             (nuc_int/nuc_area)/(cell_int/cell_area),cell_thresh_fac,nuc_thresh_fac...%13-15
                             );
                         
