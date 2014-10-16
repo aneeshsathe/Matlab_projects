@@ -1,57 +1,36 @@
 clear
 clc
-%% THINGS TO CHANGE IN THIS SECTION
-% >>>>>>>CHANGE FILE PATH BELOW!<<<<<<<<
-%root_root='/mnt/mbi/images/naotaka/'; %this is base path in laksa/satay
-root_root='/mnt/mbi/images/naotaka/timelapse_20141014_fhl3_FBlim/';
-
-%>>>>>>>>IF MIXED DATA SET SERIES BELOW. IF NOT MIXED SET TO 0
-series_to_read=0; %[23,24,25,26,27]%use this to specify series. when not in use set to zero
-
-%>>>>>> CHANGE EXTENSION TO .nd2 BELOW<<<<<<<<<<
-file_ext='*.mvd2'; %e.g. '*.mvd2' '*.nd2'
-
-cell_chanl=1;
-nuc_chanl=2;
-% phos_chanl=3;
-cell_2d_area_thresh=10000; %spinning disk normal cells
-%  cell_2d_area_thresh=1000; %spinning disk fak-/- or vin-/- (small cells)
-cell_3d_area_thresh= 30000;%spinning disk normal cells
-%  cell_3d_area_thresh= 3000;%spinning disk fak-/- or vin-/- (small cells)
-nuc_3d_area_thresh=7000;
-%  nuc_3d_area_thresh=700;
-
-
-%% DO NOT MODIFY PROGRAM AFTER THIS POINT
+%%
 add_path1=fullfile(fileparts(mfilename('fullpath')), 'image_tools', 'bfmatlab', filesep);
 add_path2=fullfile(fileparts(mfilename('fullpath')), 'dlmcell', filesep);
 addpath(add_path1)
 addpath(add_path2)
 
 %% read image
-
+cell_chanl=1;
+nuc_chanl=2;
+% phos_chanl=3;
+cell_2d_area_thresh=10000;
+%  cell_2d_area_thresh=1000;
+cell_3d_area_thresh= 30000;
+%  cell_3d_area_thresh= 3000;
+nuc_3d_area_thresh=7000;
+%  nuc_3d_area_thresh=700;
 %root_root='C:\Users\Aneesh\Documents\Data\spinning disk\';
-
-fold_list=dir(root_root); %% check contents of folder
-for fold_count=5:size(fold_list,1)
-    
+% >>>>>>>CHANGE FILE PATH BELOW!<<<<<<<<
+  root_root='/mnt/mbi/images/aneesh/Data/Paxillin timelapse/SD_20140902_pax_timelapse/';
+fold_list=dir(root_root);
+for fold_count=3:size(fold_list,1)
+   
     root=fullfile(root_root,fold_list(fold_count).name,filesep); %change path as required
     img_write_path=fullfile(root, ['results_', date],filesep);
     mkdir(img_write_path);
-    
-    file_list=dir(fullfile(root, file_ext));
-    
-    %file_path=[root, file_list.name]; %use this normally
-    file_path=[root, file_list(end).name]; %modification
+    %>>>>>> CHANGE EXTENSION TO .nd2 BELOW<<<<<<<<<<
+    file_list=dir(fullfile(root, '*.mvd2'));
+    file_path=[root, file_list.name];
     %% initialize file reader and get number of series
     reader = bfGetReader(file_path);
-    if series_to_read==0
-        series_num=reader.getSeriesCount;
-        pro_series_count=1:series_num;
-    else
-        series_num= size(series_to_read,2);
-        pro_series_count=series_to_read;
-    end
+    series_num=reader.getSeriesCount;
     %% initialize storage cell
     [xls_label{1,1:14}]=deal(...
         'Cell','Time', ... %1-2
@@ -60,9 +39,7 @@ for fold_count=5:size(fold_list,1)
         'Avg Int Ratio','Cell thresh val','Nuc thresh val'...%12-14
         );
     %%
-    for series_count=pro_series_count
-        %for series_count=1:series_num%use this for all series
-        %for series_count=[2,6,10 ]%use this to specify series in [series1,series2, series18, etc]
+    for series_count=1:series_num
         reader.setSeries(series_count-1)
         C_num=reader.getSizeC;
         Z_num=reader.getSizeZ;
@@ -88,7 +65,7 @@ for fold_count=5:size(fold_list,1)
             
             sum_cell=sum(cell_stack,3);
             sum_smooth_cell=sum(smooth_cell,3);
-            re_smooth_cell=reshape(smooth_cell,[],size(smooth_cell,2)*size(smooth_cell,3));
+            %re_smooth_cell=reshape(smooth_cell,[],size(smooth_cell,2)*size(smooth_cell,3));
             
             %             figure, imshow(sum_cell,[])
             h = fspecial('gaussian', [3 3],0.5);
@@ -96,12 +73,12 @@ for fold_count=5:size(fold_list,1)
             
             
             %% crop cell
-            bs_sum_smooth_cell=sum_smooth_cell-imopen(sum_smooth_cell, strel('disk',250));
-            %bs_sum_smooth_cell=bs_sum_smooth_cell-imopen(bs_sum_smooth_cell, strel('disk',250));
+            %bs_sum_smooth_cell=sum_smooth_cell-imopen(sum_smooth_cell, strel('disk',250));
+            %             bs_sum_smooth_cell=bs_sum_smooth_cell-imopen(bs_sum_smooth_cell, strel('disk',250));
             % bs_sum_smooth_cell=sum_smooth_cell-imopen(sum_smooth_cell, strel('ball',250,3));
-            %bs_sum_smooth_cell=bs_sum_smooth_cell-imopen(bs_sum_smooth_cell, strel('ball',15,5));
-            bw_sum_cell=bs_sum_smooth_cell>graythresh(bs_sum_smooth_cell);
-            
+            %             bs_sum_smooth_cell=bs_sum_smooth_cell-imopen(bs_sum_smooth_cell, strel('ball',15,5));
+            %bw_sum_cell=bs_sum_smooth_cell>graythresh(bs_sum_smooth_cell);
+            bw_sum_cell=sum_smooth_cell>graythresh(sum_smooth_cell);
             
             %         bw_sum_cell=bs_sum_smooth_cell>graythresh(sum_cell);
             %         bw_sum_cell=sum_smooth_cell>graythresh(sum_cell);
@@ -120,9 +97,9 @@ for fold_count=5:size(fold_list,1)
                 
                 obj_idx=find([bw_re_prop.Area]>cell_2d_area_thresh);
                 
-                for obj_count=1:size(obj_idx,2)
+                       for obj_count=1:size(obj_idx,2)
                     
-                    bb=bw_re_prop(obj_idx(obj_count)).BoundingBox;
+                                       bb=bw_re_prop(obj_idx(obj_count)).BoundingBox;
                     pix_list=bw_re_prop(obj_idx(obj_count)).PixelIdxList;
                     [tmp, cmc, cc, cn, cp, cop]=deal(zeros(size(cell_stack,1),size(cell_stack,2)));
                     [coc, noc]=deal(zeros(size(cell_stack,1),size(cell_stack,2),'uint16'));
@@ -234,28 +211,28 @@ for fold_count=5:size(fold_list,1)
                             %reshape(phos_stack(cell_pix_list),[],size(cell_bw,2)*size(cell_bw,3));
                             ];
                         max_img=max(orig_cell_stack,[],3);
-                        %sum_img=sum(orig_cell_stack,3,'double');
+                        sum_img=sum(orig_cell_stack,3);
                         %         imtool(out_img,[])
                         %% write image
                         if t_count==1
                             imwrite(out_img,[img_write_path, 'Series',num2str(series_count), '_cell_', num2str(obj_count), '.tiff'],...
                                 'tiff');%,'Compression', 'jpeg', 'RowsPerStrip', 16);
                             
-                            imwrite(max_img,[img_write_path, 'Max_Proj_Series',num2str(series_count),'_cell_', num2str(obj_count), '.tiff'],...
+                            imwrite(max_img,[img_write_path, 'Max_Proj_Series',num2str(series_count), '_cell_', num2str(obj_count), '.tiff'],...
                                 'tiff');
-                            % imwrite(uint16(sum_img),[img_write_path, 'Sum_Proj_Series',num2str(series_count), '_cell_', num2str(obj_count), '.tiff'],...
-                            % 'tiff');
+                            imwrite(sum_img,[img_write_path, 'Sum_Proj_Series',num2str(series_count), '_cell_', num2str(obj_count), '.tiff'],...
+                                'tiff');
                             
                         elseif t_count>1
                             imwrite(out_img,[img_write_path, 'Series',num2str(series_count), '_cell_', num2str(obj_count), '.tiff'],...
                                 'tiff','WriteMode','append');%, 'Compression', 'jpeg', 'RowsPerStrip', 16);
                             
-                            imwrite(max_img,[img_write_path, 'Max_Proj_Series',num2str(series_count),'_', '_cell_', num2str(obj_count), '.tiff'],...
+                            imwrite(max_img,[img_write_path, 'Max_Proj_Series',num2str(series_count), '_cell_', num2str(obj_count), '.tiff'],...
                                 'tiff','WriteMode','append');
                             
-                            %imwrite(uint16(sum_img),[img_write_path, 'Sum_Proj_Series',num2str(series_count), '_cell_', num2str(obj_count), '.tiff'],...
-                            % 'tiff','WriteMode','append');
-                            
+                            imwrite(sum_img,[img_write_path, 'Sum_Proj_Series',num2str(series_count), '_cell_', num2str(obj_count), '.tiff'],...
+                                'tiff','WriteMode','append');
+                        
                         end
                         clear out_img
                         disp(['Series ' num2str(series_count) ' of ' num2str(series_num) ' time ' num2str(t_count) ' of ' num2str(T_num)])
@@ -264,16 +241,15 @@ for fold_count=5:size(fold_list,1)
                     clear rat_member crop_smo_cell crop_cell crop_nuc crop_orig_cell crop_orig_nuc crop_phos crop_orig_phos
                 end % for object
                 xls_label=vertcat(xls_label,reshape(permute(pro_xls_label, [1 3 2]),[],14));
-                clear data
+                clear data 
                 clear cell_stack phos_stack orig_phos_stack nuc_stack orig_cell_stack cell_stack nuc_stack smooth_cell smooth_nuc
-                clear sum_cell sum_smooth_cell re_smooth_cell nuc_bw orig_nuc_stack pix_list pro_xls_label
+                clear sum_cell sum_smooth_cell re_smooth_cell nuc_bw orig_nuc_stack pix_list
                 clear cumu_nuc_int
             end % if bw_prop is empty
             
         end %for T count
-        
+       
     end %for series count
-
     %% write data
     
     xls_file_name=[img_write_path, fold_list(fold_count).name '.txt'];
@@ -291,5 +267,6 @@ for fold_count=5:size(fold_list,1)
     clear xls_label final_data_out out_* xls_file_*
     clear nuc_avg_out nuc_all_out nuc_cumu_x out_cumu_nuc_int
     clear cell_avg_out cell_all_out cell_cumu_x out_cumu_cell_int
-    
 end %for fold count
+
+
